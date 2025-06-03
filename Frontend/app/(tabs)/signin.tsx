@@ -29,27 +29,29 @@ export default function LoginScreen() {
         setIsLoading(true);
 
         try {
-            // Check if user exists in AsyncStorage
-            const userData = await AsyncStorage.getItem('user');
-            if (!userData) {
-                Alert.alert('Error', 'No user found. Please sign up first.');
+          
+            const response = await fetch("http://192.168.253.177:3000/signin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({  email, password })
+            });
+
+            
+
+            if (!response.ok) {
+                Alert.alert('Signin Failed');
                 return;
             }
 
-            const user = JSON.parse(userData);
+            const data = await response.json()
 
-            if (user.email !== email || user.password !== password) {
-                Alert.alert('Error', 'Invalid email or password');
-                return;
-            }
+            Alert.alert('Signin Success', `Welcome, ${data.user.name}!`);
+            navigation.push("/(tabs)")
 
-            // Successful login
-            Alert.alert('Login Success', `Welcome back, ${user.name || email}!`, [
-                {
-                    text: 'OK',
-                    onPress: () =>  navigation.replace('/')
-                }
-            ]);
+            setEmail("")
+            setPassword("")
 
         } catch (error) {
             console.error('Login error:', error);

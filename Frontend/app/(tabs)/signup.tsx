@@ -51,18 +51,26 @@ export default function SignupScreen( ) {
 
         try {
 
-            const existingUser = await AsyncStorage.getItem('user');
-            if (existingUser) {
-                const parsedUser = JSON.parse(existingUser);
-                if (parsedUser.email === email) {
-                    Alert.alert('Error', 'An account with this email already exists.');
-                    return;
-                }
+            const response = await fetch("http://192.168.253.177:3000/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            console.log(response)
+
+            if (!response.ok) {
+                Alert.alert('Signup Failed');
+                return;
             }
 
-            const user = { email, password, name };
-            await AsyncStorage.setItem('user', JSON.stringify(user));
             Alert.alert('Signup Success', `Welcome, ${name}!`);
+            setConfirmPassword("")
+            setEmail("")
+            setName("")
+            setPassword("")
             navigation.replace("/(tabs)/signin")
         } catch (error) {
             console.error(error);
